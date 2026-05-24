@@ -37,7 +37,7 @@ def register(request):
                  'token': default_token_generator.make_token(user),
              })
              to_email = email
-             send_email = EmailMessage(mail_subject, message, to=[to_email])
+             send_email = EmailMessage(mail_subject, message, from_email='yashfaejaz83@gmail.com', to=[to_email])
              send_email.send()
              return redirect('/accounts/login/?command=verification&email='+email)
      else:
@@ -122,27 +122,29 @@ def resetpassword_validate(request, uidb64, token):
           user = None
      
      if user is not None and default_token_generator.check_token(user, token):
-          request.session['uid'] = uid
-          messages.success(request, 'Please reset your password')
-          return redirect('resetPassword')       
-     else:
-          messages.error(request, 'This link has been expired.')
-          return redirect('login')
-     
-def resetPassword(request):
-     if request.method == 'POST':
-          password = request.POST['password']
-          confirm_password = request.POST['confirm_password']
-
-          if password == confirm_password:
-               uid = request.session.get('uid')
-               user = Account.objects.get(pk=uid)
-               user.set_password(password)
-               user.save()
-               messages.success(request, 'Password reset successful.')
-               return redirect('login')
+          if request.method == 'POST':
+               form = ResetPasswordForm(request.POST)
+               if form.is_valid():
+                    password = form.cleaned_data['password']
+                    user.set_password(password)
+                    user.save()
+                    messages.success(request, 'Password has been reset successfully.')
+                    return redirect('login')
+               else:
+                    context = {
+                         'form': form,
+                         'uidb64': uidb64,
+                         'token': token,
+                    }
+                    return render(request, 'accounts/reset_password.html', context)
           else:
-               messages.error(request, 'Password do not match!')
-               return redirect('resetPassword')
+               form = ResetPasswordForm()
+               context = {
+                    'form': form,
+                    'uidb64': uidb64,
+                    'token': token,
+               }
+               return render(request, 'accounts/reset_password.html', context)
      else:
-          return render(request, 'accounts/resetPassword.html')
+          messages.error(request, 'Invalid password reset link')
+          return redirect('login')
