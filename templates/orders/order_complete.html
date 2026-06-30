@@ -51,7 +51,7 @@
                                     </ul>
                                 </div>
                             </div>
-                           
+                            <h3>Total Products: {{ ordered_products|length }}</h3>
                             <div class="invoice-items">
                                 <div class="table-responsive" style="overflow: hidden; outline: none;" tabindex="0">
                                     <table class="table table-bordered">
@@ -67,8 +67,8 @@
                                             <tr>
                                                 <td>{{item.product.product_name}}</td>
                                                   <p class="text-muted small">
-					                                 {% if item.variations.all %}
-					                                    {% for i in item.variations.all %}
+					                                 {% if item.variation.all %}
+					                                    {% for i in item.variation.all %}
                                                            {{ i.variation_category | capfirst }} : {{ i.variation_value | capfirst }} <br>
 					                                    {% endfor %}
                                                      {% endif %}

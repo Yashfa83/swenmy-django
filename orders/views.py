@@ -14,10 +14,10 @@ from django.template.loader import render_to_string
 
 def payments(request):
     user = request.user
-    try:
-        order = Order.objects.get(user=user, is_ordered=False)
-    except Order.DoesNotExist:
-        return redirect('store')
+    order = Order.objects.filter(user=user, is_ordered=False).last()
+
+    if order is None:
+       return redirect('store')
 
     payment = None
     cart_items = CartItem.objects.filter(user=user)
@@ -56,14 +56,20 @@ def payments(request):
     to_email = request.user.email
     send_email = EmailMessage(mail_subject, message, to=[to_email])
     send_email.send()
+    # Mark order as completed
+    order.is_ordered = True
+    order.save()
 
     # Send order number and transaction id back to sendData method via JsonResponse
     data = {
-        'order_number': order.order_number,
-        'transID': payment.payment.id,
-    }
-    return JsonResponse(data)
+    'order_number': order.order_number,
+    'transID': 'DUMMY-' + order.order_number,
+}
 
+    return redirect('/orders/order_complete/?order_number={}&payment_id={}'.format(
+    order.order_number,
+    'DUMMY-' + order.order_number
+))
 
 
 def place_order(request, total=0, quantity=0):
@@ -137,7 +143,7 @@ def order_complete(request):
           for i in ordered_products:
                subtotal += i.product_price * i.quantity 
           
-          payment = Payment.objects.get(payment_id=transaction_id)
+          payment = None
 
           context = {
                'order': order,

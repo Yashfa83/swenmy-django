@@ -25,7 +25,7 @@
       <div class="card">
            <h5 class="card-header">Payment Method</h5>
            <div class="card-body">
-              <p class="card-text">PayPal</p>
+              <p class="card-text">Dummy Payment</p>
              
         </div>
       </div>
@@ -85,27 +85,65 @@
 	</aside> <!-- col.// -->
 	<aside class="col-lg-3">
 
-		<div class="card">
-		<div class="card-body">
-			<dl class="dlist-align">
-			  <dt>Total price:</dt>
-			  <dd class="text-right">${{ total }}</dd>
-			</dl>
-			<dl class="dlist-align">
-			  <dt>Tax:</dt>
-			  <dd class="text-right"> ${{ tax }}</dd>
-			</dl>
-			<dl class="dlist-align">
-			  <dt>Grand Total:</dt>
-			  <dd class="text-right text-dark b"><strong>${{ grand_total }}</strong></dd>
-			</dl>
-			<hr>
-			<p class="text-center mb-3">
-				<img src="{% static './images/misc/payments.png' %}" height="26">
-			</p>
-			<a href="{% url 'checkout' %}" class="btn btn-primary btn-block"> Make Payment </a>
-			
-		</div> <!-- card.// -->
+<div class="card">
+    <div class="card-body">
+
+        <dl class="dlist-align">
+            <dt>Total price:</dt>
+            <dd class="text-right">${{ total }}</dd>
+        </dl>
+
+        <dl class="dlist-align">
+            <dt>Tax:</dt>
+            <dd class="text-right">${{ tax }}</dd>
+        </dl>
+
+        <dl class="dlist-align">
+            <dt>Grand Total:</dt>
+            <dd class="text-right text-dark">
+                <strong>${{ grand_total }}</strong>
+            </dd>
+        </dl>
+
+        <hr>
+
+        <p class="text-center mb-3">
+            <img src="{% static 'images/misc/payments.png' %}" height="26">
+        </p>
+
+
+        <!-- Payment Form Start -->
+        <form action="{% url 'payments' %}" method="POST">
+
+            {% csrf_token %}
+
+            <input type="hidden" 
+                   name="order_number" 
+                   value="{{ order.order_number }}">
+
+            <input type="hidden" 
+                   name="transaction_id" 
+                   value="DUMMY-{{ order.order_number }}">
+
+            <input type="hidden" 
+                   name="payment_method" 
+                   value="Dummy Payment">
+
+            <input type="hidden" 
+                   name="status" 
+                   value="COMPLETED">
+
+
+            <button type="submit" class="btn btn-primary btn-block">
+                Make Payment
+            </button>
+
+        </form>
+        <!-- Payment Form End -->
+
+
+    </div>
+</div>
 
 </aside> <!-- col.// -->
 
